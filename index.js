@@ -57,7 +57,7 @@ async function main() {
 
     if (command !== 'use' || !version) {
         console.log(`
-Azure Functions Core Tools Version Mananger (unofficial)
+Azure Functions Core Tools Version Manager (unofficial)
 
 Usage: funcvm use <version>
         

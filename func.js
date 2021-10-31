@@ -9,6 +9,12 @@ const args = process.argv;
 const version = '4.0.3928';
 
 async function main() {
+
+    if (args.length >= 3 && args[2] === '--is-funcvm') {
+        console.log('yes');
+        return;
+    }
+
     const { downloadDir } = await getLocations();
     
     const versionFile = path.join(downloadDir, 'funcvm-core-tools-version.txt');
