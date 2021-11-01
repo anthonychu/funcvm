@@ -6,33 +6,8 @@ const path = require('path');
 const fetch = require('node-fetch');
 const Progress = require('node-fetch-progress');
 const unzipper = require('unzipper');
-const { getLocations } = require('./common');
+const { getLocations, getPlatform, constants } = require('./common');
 const args = process.argv.slice(2);
-
-function getPlatform() {
-    switch (os.platform()) {
-        case 'win32':
-            return {
-                os: 'Windows',
-                arch: 'x64',
-                label: 'win-x64',
-            };
-        case 'darwin':
-            return {
-                os: 'MacOS',
-                arch: 'x64',
-                label: 'osx-x64',
-            };
-        case 'linux':
-            return {
-                os: 'Linux',
-                arch: 'x64',
-                label: 'linux-x64',
-            };
-        default:
-            throw new Error(`Unsupported platform: ${os.platform()}`);
-    }
-}
 
 async function downloadAndUnzip(url, dest) {
     const response = await fetch(url);
@@ -53,11 +28,12 @@ async function downloadAndUnzip(url, dest) {
 
 async function main() {
     const command = args.length > 0 ? args[0] : 'help';
-    const version = (args.length > 1 && (command === 'use' || command === 'remove')) ? args[1] : undefined;
+    const version = (args.length > 1 && (['use', 'install', 'remove'].includes(command))) ? args[1] : undefined;
 
     const { downloadDir } = await getLocations();
 
     const isUseCommand = command === 'use' && !!version;
+    const isInstallCommand = command === 'install' && !!version;
     const isListCommand = command === 'list';
     const isRemoveCommand = command === 'remove';
 
@@ -82,22 +58,28 @@ async function main() {
         }
         fs.rmdirSync(versionDir, { recursive: true });
         process.exit(0);
-    } else if (!isUseCommand && !isListCommand) {
+    } else if (!isUseCommand && !isInstallCommand) {
         console.log(`
 Azure Functions Core Tools Version Manager (unofficial)
 
-Usage: funcvm <command> <version>
+Usage: funcvm <command> [version]
         
 Examples:
 
-    Use latest stable 4.x version:
+    Install and use latest stable 4.x version:
         funcvm use 4
 
-    Use exact version:
+    Install and use exact version:
         funcvm use 4.0.3928
         
+    Install exact version:
+        funcvm install 4.0.3928
+
     List installed versions:
-        funcvm list\n`);
+        funcvm list
+        
+    Remove an installed version:
+        funcvm remove 4.0.3928\n`);
         process.exit(0);
     }
 
@@ -169,10 +151,20 @@ Examples:
             fs.chmodSync(funcBin, 0o755);
             fs.chmodSync(path.join(versionDownloadDir, 'gozip'), 0o755);
         }
+
+        if (isInstallCommand) {
+            console.log(`${tag.coreToolsVersion} installed. Run 'funcvm use ${tag.coreToolsVersion}' or set '${constants.versionEnvironmentVariableName}' environment variable to use it.`);
+        }
+    } else {
+        if (isInstallCommand) {
+            console.log(`${tag.coreToolsVersion} already installed. Run 'funcvm use ${tag.coreToolsVersion}' or set '${constants.versionEnvironmentVariableName}' environment variable to use it.`);
+        }
     }
     
-    fs.writeFileSync(path.join(downloadDir, 'funcvm-core-tools-version.txt'), tag.coreToolsVersion, 'utf8');
-    console.log(`Using ${tag.coreToolsVersion}`);
+    if (isUseCommand) {
+        fs.writeFileSync(path.join(downloadDir, 'funcvm-core-tools-version.txt'), tag.coreToolsVersion, 'utf8');
+        console.log(`Using ${tag.coreToolsVersion}`);
+    }
 }
 
 main();
