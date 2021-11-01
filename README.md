@@ -1,5 +1,7 @@
 # Azure Functions Core Tool Version Manager (funcvm)
 
+[![npm](https://img.shields.io/badge/npm-%40anthonychu%2Ffuncvm-lightgrey)](https://www.npmjs.com/package/@anthonychu/funcvm)
+
 funcvm installs and manages Azure Functions Core Tool versions. This tool is not officially supported by Microsoft.
 
 Use it to:
