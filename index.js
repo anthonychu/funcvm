@@ -53,12 +53,13 @@ async function downloadAndUnzip(url, dest) {
 
 async function main() {
     const command = args.length > 0 ? args[0] : 'help';
-    const version = args.length > 1 && command === 'use' ? args[1] : undefined;
+    const version = (args.length > 1 && (command === 'use' || command === 'remove')) ? args[1] : undefined;
 
     const { downloadDir } = await getLocations();
 
     const isUseCommand = command === 'use' && !!version;
     const isListCommand = command === 'list';
+    const isRemoveCommand = command === 'remove';
 
     if (isListCommand) {
         const versions = fs.readdirSync(downloadDir);
@@ -72,6 +73,14 @@ async function main() {
                 console.log(version + (currentVersion === version ? ' (selected)' : ''));
             }
         }
+        process.exit(0);
+    } else if (isRemoveCommand && !!version) {
+        const versionDir = path.join(downloadDir, version);
+        if (!fs.existsSync(versionDir)) {
+            console.error(`Version '${version}' is not installed. Run 'funcvm list' to see installed versions.`);
+            process.exit(1);
+        }
+        fs.rmdirSync(versionDir, { recursive: true });
         process.exit(0);
     } else if (!isUseCommand && !isListCommand) {
         console.log(`

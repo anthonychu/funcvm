@@ -29,7 +29,7 @@ async function main() {
     const funcBin = path.join(downloadDir, version, 'func');
     
     if (!fs.existsSync(funcBin)) {
-        console.error(`func binary not found at ${funcBin}`);
+        console.error(`func binary not found at ${funcBin}. Try running 'funcvm use ${version}' to repair.`);
         process.exit(1);
     }
 
