@@ -15,7 +15,7 @@ async function downloadAndUnzip(url, dest) {
     let prevEta;
     progress.on('progress', (p) => {
         if (prevEta !== p.etah) {
-            console.log(p.etah);
+            console.log(p.etah + ' remaining');
             prevEta = p.etah;
         }
     });
