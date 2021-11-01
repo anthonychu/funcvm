@@ -30,8 +30,9 @@ async function main() {
     }
 
     const funcBin = path.join(downloadDir, version, 'func');
+    const funcBinWindows = path.join(downloadDir, version, 'func.exe');
     
-    if (!fs.existsSync(funcBin)) {
+    if (!fs.existsSync(funcBin) && !fs.existsSync(funcBinWindows)) {
         console.error(`func binary not found at ${funcBin}. Try running 'funcvm install ${version}' to repair.`);
         process.exit(1);
     }
