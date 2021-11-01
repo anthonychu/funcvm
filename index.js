@@ -83,7 +83,7 @@ Examples:
         process.exit(0);
     }
 
-    const feedResponse = await fetch("https://aka.ms/AAbbk68");
+    const feedResponse = await fetch("https://aka.ms/AAeq1v7");
     const feed = await feedResponse.json();
 
     const feedTags = feed.tags;
