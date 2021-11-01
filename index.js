@@ -55,21 +55,42 @@ async function main() {
     const command = args.length > 0 ? args[0] : 'help';
     const version = args.length > 1 && command === 'use' ? args[1] : undefined;
 
-    if (command !== 'use' || !version) {
+    const { downloadDir } = await getLocations();
+
+    const isUseCommand = command === 'use' && !!version;
+    const isListCommand = command === 'list';
+
+    if (isListCommand) {
+        const versions = fs.readdirSync(downloadDir);
+        const versionFile = path.join(downloadDir, 'funcvm-core-tools-version.txt');
+        let currentVersion;
+        if (fs.existsSync(versionFile)) {
+            currentVersion = fs.readFileSync(versionFile, 'utf8');
+        }
+        for (const version of versions) {
+            if (/^\d+\.\d+\.\d+/.test(version) && fs.lstatSync(path.join(downloadDir, version)).isDirectory()) {
+                console.log(version + (currentVersion === version ? ' (selected)' : ''));
+            }
+        }
+        process.exit(0);
+    } else if (!isUseCommand && !isListCommand) {
         console.log(`
 Azure Functions Core Tools Version Manager (unofficial)
 
-Usage: funcvm use <version>
+Usage: funcvm <command> <version>
         
 Examples:
+
     Use latest stable 4.x version:
         funcvm use 4
+
     Use exact version:
-        funcvm use 4.0.3928\n`);
+        funcvm use 4.0.3928
+        
+    List installed versions:
+        funcvm list\n`);
         process.exit(0);
     }
-
-    const { downloadDir } = await getLocations();
 
     const feedResponse = await fetch("https://aka.ms/AAbbk68");
     const feed = await feedResponse.json();
