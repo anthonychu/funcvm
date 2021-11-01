@@ -18,8 +18,11 @@ To check if you have any versions of Azure functions core tools already installe
 # macOS or Linux
 which func
 
-# Windows
+# Windows command prompt
 where func
+
+# PowerShell
+Get-Command func
 ```
 
 Install funcvm with the following command:

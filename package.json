@@ -17,5 +17,10 @@
     "node-fetch": "^2.6.5",
     "node-fetch-progress": "^1.0.2",
     "unzipper": "^0.10.11"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/anthonychu/funcvm.git"
+  },
+  "private": false
 }

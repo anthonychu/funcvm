@@ -97,11 +97,17 @@ Examples:
 
         const releaseVersion = tagInfo.release;
         const release = feed.releases[releaseVersion];
+        // hack for Windows, there's no x64 in the feed
+        const archToFind = platform.os === 'Windows' ? 'x86' : platform.arch;
         const releaseCoreTool = release.coreTools.find(
-            tool => tool.OS === platform.os && tool.Architecture === platform.arch && tool.size == 'full');
+            tool => tool.OS === platform.os && tool.Architecture === archToFind && tool.size == 'full');
 
         if (releaseCoreTool) {
             tagInfo.coreToolsUrl = releaseCoreTool.downloadLink;
+            // hack for Windows, there's no x64 in the feed
+            if (platform.os === 'Windows') {
+                tagInfo.coreToolsUrl = tagInfo.coreToolsUrl.replace('x86', 'x64');
+            }
             const match = releaseCoreTool.downloadLink.match(/\/(\d+\.\d+\.\d+)\//);
             if (match) {
                 tagInfo.coreToolsVersion = match[1];
