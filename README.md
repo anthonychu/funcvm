@@ -14,16 +14,13 @@ Use it to:
 
 **Important: Uninstall all previously installed versions of Azure Functions Core Tools before using funcvm.**
 
-To check if you have any versions of Azure functions core tools already installed, run the following command:
+To check if you have any versions of Azure functions Core Tools already installed, run the following command and uninstall any versions that are listed:
 
 ```bash
 # macOS or Linux
 which func
 
-# Windows command prompt
-where func
-
-# PowerShell
+# Windows PowerShell
 Get-Command func
 ```
 
@@ -37,20 +34,21 @@ npm install -g @anthonychu/funcvm
 
 ### Use latest stable version
 
-Install and use the latest stable 4.x version of Azure Functions Core Tools:
+Install and use the latest stable 3.x version of Azure Functions Core Tools:
 
 ```bash
-funcvm use 4
-```
+funcvm use 3
 
-Then run `func --version` to confirm that it's correctly installed.
+# confirm that it's correctly installed
+func --version
+```
 
 ### Use a specific version
 
 Install and use a specific version of Azure Functions Core Tools:
 
 ```bash
-funcvm use 3.0.3873
+funcvm use 4.0.3928
 ```
 
 You can find all available versions, including prerelease versions, by checking [GitHub releases](https://github.com/Azure/azure-functions-core-tools/releases).

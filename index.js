@@ -66,8 +66,8 @@ Usage: funcvm <command> [version]
         
 Examples:
 
-    Install and use latest stable 4.x version:
-        funcvm use 4
+    Install and use latest stable 3.x version:
+        funcvm use 3
 
     Install and use exact version:
         funcvm use 4.0.3928
