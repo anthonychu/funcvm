@@ -36,6 +36,7 @@ async function main() {
     const isInstallCommand = command === 'install' && !!version;
     const isListCommand = command === 'list';
     const isRemoveCommand = command === 'remove';
+    const isFreezeCommand = command === 'freeze';
 
     if (isListCommand) {
         const versions = fs.readdirSync(downloadDir);
@@ -58,6 +59,11 @@ async function main() {
         }
         fs.rmdirSync(versionDir, { recursive: true });
         process.exit(0);
+    } else if (isFreezeCommand) {
+        const versionFile = path.join(downloadDir, 'funcvm-core-tools-version.txt');
+        const localVersionFile = path.join(process.cwd(), '.func-version');
+        fs.copyFileSync(versionFile, localVersionFile);
+        process.exit(0);
     } else if (!isUseCommand && !isInstallCommand) {
         console.log(`
 Azure Functions Core Tools Version Manager (unofficial)
@@ -79,7 +85,10 @@ Examples:
         funcvm list
         
     Remove an installed version:
-        funcvm remove 4.0.3928\n`);
+        funcvm remove 4.0.3928
+
+    Generate \`.func-version\` in current directory:
+        funcvm freeze\n`);
         process.exit(0);
     }
 
