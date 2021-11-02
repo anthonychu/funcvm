@@ -18,10 +18,25 @@ async function main() {
     const { downloadDir } = await getLocations();
     
     const versionFile = path.join(downloadDir, 'funcvm-core-tools-version.txt');
+    const localVersionFile = path.join(process.cwd(), '.func-version');
     let version;
 
     if (!!process.env[constants.versionEnvironmentVariableName]) {
         version = process.env[constants.versionEnvironmentVariableName];
+    } else if (fs.existsSync(localVersionFile)) {
+        await new Promise((resolve) => {
+          const re = /(\d+\.\d+\.\d+)( already)? installed./;
+          const p = spawn('funcvm', ['install', fs.readFileSync(localVersionFile, 'utf8').trim()]);
+          p.on('exit', (code)=>{
+            resolve(code);
+          });
+          p.stdout.setEncoding('utf-8');
+          p.stdout.on('data', (data)=>{
+            !/\d+\.\d+\.\d+ already installed./.test(data) && process.stdout.write(data);
+            if (re.test(data)) version = data.match(re)[1];
+          });
+        });
+
     } else if (fs.existsSync(versionFile)) {
         version = fs.readFileSync(versionFile, 'utf8');
     } else {
