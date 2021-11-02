@@ -26,7 +26,7 @@ async function main() {
     } else if (fs.existsSync(localVersionFile)) {
         await new Promise((resolve) => {
           const re = /(\d+\.\d+\.\d+)( already)? installed./;
-          const p = spawn('funcvm', ['install', fs.readFileSync(localVersionFile, 'utf8').trim()]);
+          const p = spawn(`funcvm${process.platform === 'win32' ? '.cmd': ''}`, ['install', fs.readFileSync(localVersionFile, 'utf8').trim()]);
           p.on('exit', (code)=>{
             resolve(code);
           });
