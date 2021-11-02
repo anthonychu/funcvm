@@ -36,7 +36,6 @@ async function main() {
     const isInstallCommand = command === 'install' && !!version;
     const isListCommand = command === 'list';
     const isRemoveCommand = command === 'remove';
-    const isFreezeCommand = command === 'freeze';
 
     if (isListCommand) {
         const versions = fs.readdirSync(downloadDir);
@@ -59,11 +58,6 @@ async function main() {
         }
         fs.rmdirSync(versionDir, { recursive: true });
         process.exit(0);
-    } else if (isFreezeCommand) {
-        const versionFile = path.join(downloadDir, 'funcvm-core-tools-version.txt');
-        const localVersionFile = path.join(process.cwd(), '.func-version');
-        fs.copyFileSync(versionFile, localVersionFile);
-        process.exit(0);
     } else if (!isUseCommand && !isInstallCommand) {
         console.log(`
 Azure Functions Core Tools Version Manager (unofficial)
@@ -78,6 +72,9 @@ Examples:
     Install and use exact version:
         funcvm use 4.0.3928
         
+    Install and use the version only for the current directory:
+        funcvm use 4.0.3928 --local
+        
     Install exact version:
         funcvm install 4.0.3928
 
@@ -85,10 +82,7 @@ Examples:
         funcvm list
         
     Remove an installed version:
-        funcvm remove 4.0.3928
-
-    Generate \`.func-version\` in current directory:
-        funcvm freeze\n`);
+        funcvm remove 4.0.3928\n`);
         process.exit(0);
     }
 
@@ -177,7 +171,11 @@ Examples:
     }
     
     if (isUseCommand) {
-        fs.writeFileSync(path.join(downloadDir, 'funcvm-core-tools-version.txt'), tag.coreToolsVersion, 'utf8');
+        if (args.includes('--local')) {
+          fs.writeFileSync(path.join(process.cwd(), '.func-version'), tag.coreToolsVersion, 'utf8');
+        } else {
+          fs.writeFileSync(path.join(downloadDir, 'funcvm-core-tools-version.txt'), tag.coreToolsVersion, 'utf8');
+        }
         console.log(`Using ${tag.coreToolsVersion}`);
     }
 }
