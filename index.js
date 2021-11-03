@@ -50,13 +50,10 @@ async function main() {
         }
         for (const version of versions) {
             if (/^\d+\.\d+\.\d+/.test(version) && fs.lstatSync(path.join(downloadDir, version)).isDirectory()) {
-                const suffix = ((v, c, l) => {
-                    if (c === v && l === v) return ' (global, local)';
-                    else if (c === v) return ' (global)';
-                    else if (l === v) return ' (local)';
-                    return '';
-                })(version, currentVersion, localVersion);
-                console.log(`${version}${suffix}`);
+                const tags = [];
+                currentVersion === version && tags.push('global');
+                localVersion === version && tags.push('local');
+                console.log(`${version}${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`);
             }
         }
         process.exit(0);
@@ -128,7 +125,6 @@ Examples:
             tags[tagName] = tagInfo;
         }
     }
-
     let tag = tags[`v${version}`];
 
     if (!tag) {
