@@ -22,6 +22,9 @@ which func
 
 # Windows PowerShell
 Get-Command func
+
+# Windows Command Prompt
+where func
 ```
 
 Install funcvm with the following command:
