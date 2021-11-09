@@ -52,28 +52,25 @@ async function main() {
         if (args.includes('--remote')) {
             const feedResponse = await fetch("https://aka.ms/AAeq1v7");
             const feed = await feedResponse.json();
-            const releases = [];
-            for (const [release, releaseInfo] of Object.entries(feed.releases)) {
+            const releases = {};
+            for (const [, releaseInfo] of Object.entries(feed.releases).sort()) {
                 const coreTool = releaseInfo.coreTools.find(tools => tools.OS === getPlatform().os);
                 if (!coreTool) {
                     continue;
                 };
                 try {
                     const version = coreTool.downloadLink.match(/\d+\.\d+\.\d+/)[0];
-                    if (releases.find(r => r.version === version)) {
+                    if (releases[version]) {
                         continue;
                     };
                     const tags = [];
                     versions.includes(version) && tags.push('installed');
                     currentVersion === version && tags.push('global');
                     localVersion === version && tags.push('local');
-                    releases.push({
-                        version,
-                        tags: `${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`
-                    })
+                    releases[version] = `${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`;
                 } catch { }
             }
-            console.log(releases.sort((r1, r2) => r1.version >= r2.version ? 1 : -1).map(r => `${r.version}${r.tags}`).join('\n'));
+            console.log(Object.entries(releases).sort((r1, r2) => r1[0] > r2[0] ? 1 : -1).map(r => r.join(' ')).join('\n'));
             process.exit(0);
         }
         for (const version of versions) {
