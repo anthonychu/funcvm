@@ -37,10 +37,10 @@ npm install -g @anthonychu/funcvm
 
 ### Use latest stable version
 
-Install and use the latest stable 3.x version of Azure Functions Core Tools:
+Install and use the latest stable 4.x version of Azure Functions Core Tools:
 
 ```bash
-funcvm use 3
+funcvm use 4
 
 # confirm that it's correctly installed
 func --version
@@ -51,12 +51,14 @@ func --version
 Install and use a specific version of Azure Functions Core Tools:
 
 ```bash
-funcvm use 4.0.3928
+funcvm use 3.0.3785
 ```
 
 You can find all available versions, including prerelease versions, by checking [GitHub releases](https://github.com/Azure/azure-functions-core-tools/releases).
 
 ### Use a different version than the currently selected version
+
+#### Environment variable
 
 You can set the `FUNCVM_CORE_TOOLS_VERSION` environment variable to use a different version of Azure Functions Core Tools than the currently selected version.
 
@@ -64,6 +66,14 @@ You can set the `FUNCVM_CORE_TOOLS_VERSION` environment variable to use a differ
 export FUNCVM_CORE_TOOLS_VERSION=3.0.3873
 func --version
 # this should print 3.0.3873
+```
+
+#### Local version file
+
+You can save a file named `.func-version` in any folder to use a different version of Azure Functions Core Tools than the globally selected version.
+
+```bash
+funcvm use 4 --local
 ```
 
 ---
