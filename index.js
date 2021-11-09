@@ -180,9 +180,14 @@ Examples:
     }
 
     if (isUseCommand) {
+        const localVersionFile = path.join(process.cwd(), '.func-version');
         if (args.includes('--local')) {
-            fs.writeFileSync(path.join(process.cwd(), '.func-version'), tag.coreToolsVersion, 'utf8');
+            fs.writeFileSync(localVersionFile, tag.coreToolsVersion, 'utf8');
         } else {
+            if (fs.existsSync(localVersionFile)) {
+                console.log(`Local version file '${localVersionFile}' already exists. Remove it or use 'funcvm use ${tag.coreToolsVersion} --local' to update it.`);
+                process.exit(1);
+            }
             fs.writeFileSync(path.join(downloadDir, 'funcvm-core-tools-version.txt'), tag.coreToolsVersion, 'utf8');
         }
         console.log(`Using ${tag.coreToolsVersion}`);
