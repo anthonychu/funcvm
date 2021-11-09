@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "command-exists": "^1.2.9",
+    "json5": "^2.2.0",
     "node-fetch": "^2.6.5",
     "node-fetch-progress": "^1.0.2",
     "unzipper": "^0.10.11"

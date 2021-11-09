@@ -7,6 +7,7 @@ const fetch = require('node-fetch');
 const Progress = require('node-fetch-progress');
 const unzipper = require('unzipper');
 const { getLocations, getPlatform, constants } = require('./common');
+const JSON5 = require('json5');
 const args = process.argv.slice(2);
 
 async function downloadAndUnzip(url, dest) {
@@ -84,7 +85,8 @@ Examples:
     }
 
     const feedResponse = await fetch("https://aka.ms/AAeq1v7");
-    const feed = await feedResponse.json();
+    const feedText = await feedResponse.text();
+    const feed = JSON5.parse(feedText);
 
     const feedTags = feed.tags;
     const tags = {};
@@ -130,7 +132,8 @@ Examples:
             process.exit(1);
         }
 
-        const release = await releaseResponse.json();
+        const releaseText = await releaseResponse.text();
+        const release = JSON5.parse(releaseText);
         const name = `Azure.Functions.Cli.${platform.label}.${version}.zip`;
         const asset = release.assets.find(asset => asset.name === name);
 
