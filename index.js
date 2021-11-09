@@ -41,13 +41,20 @@ async function main() {
     if (isListCommand) {
         const versions = fs.readdirSync(downloadDir);
         const versionFile = path.join(downloadDir, 'funcvm-core-tools-version.txt');
-        let currentVersion;
+        const localVersionFile = path.join(process.cwd(), '.func-version');
+        let currentVersion, localVersion;
         if (fs.existsSync(versionFile)) {
             currentVersion = fs.readFileSync(versionFile, 'utf8');
         }
+        if (fs.existsSync(localVersionFile)) {
+            localVersion = fs.readFileSync(localVersionFile, 'utf8');
+        }
         for (const version of versions) {
             if (/^\d+\.\d+\.\d+/.test(version) && fs.lstatSync(path.join(downloadDir, version)).isDirectory()) {
-                console.log(version + (currentVersion === version ? ' (selected)' : ''));
+                const tags = [];
+                currentVersion === version && tags.push('global');
+                localVersion === version && tags.push('local');
+                console.log(`${version}${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`);
             }
         }
         process.exit(0);
@@ -72,13 +79,16 @@ Examples:
 
     Install and use exact version:
         funcvm use 4.0.3928
-        
+
+    Install and use the version only for the current directory:
+        funcvm use 4.0.3928 --local
+
     Install exact version:
         funcvm install 4.0.3928
 
     List installed versions:
         funcvm list
-        
+
     Remove an installed version:
         funcvm remove 4.0.3928\n`);
         process.exit(0);
@@ -117,7 +127,6 @@ Examples:
             tags[tagName] = tagInfo;
         }
     }
-
     let tag = tags[`v${version}`];
 
     if (!tag) {
@@ -169,9 +178,13 @@ Examples:
             console.log(`${tag.coreToolsVersion} already installed. Run 'funcvm use ${tag.coreToolsVersion}' or set '${constants.versionEnvironmentVariableName}' environment variable to use it.`);
         }
     }
-    
+
     if (isUseCommand) {
-        fs.writeFileSync(path.join(downloadDir, 'funcvm-core-tools-version.txt'), tag.coreToolsVersion, 'utf8');
+        if (args.includes('--local')) {
+            fs.writeFileSync(path.join(process.cwd(), '.func-version'), tag.coreToolsVersion, 'utf8');
+        } else {
+            fs.writeFileSync(path.join(downloadDir, 'funcvm-core-tools-version.txt'), tag.coreToolsVersion, 'utf8');
+        }
         console.log(`Using ${tag.coreToolsVersion}`);
     }
 }
