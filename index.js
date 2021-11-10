@@ -64,11 +64,11 @@ async function main() {
                         continue;
                     };
                     const tags = [];
-                    versions.includes(version) && tags.push('installed');
                     process.env[constants.versionEnvironmentVariableName] === version && tags.push('env');
                     localVersion === version && tags.push('local');
                     currentVersion === version && tags.push('global');
                     !versions.includes(version) && tags.length > 0 && tags.push('not installed');
+                    versions.includes(version) && tags.length === 0 && tags.push('installed');
                     releases[version] = `${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`;
                 } catch { }
             }
