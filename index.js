@@ -65,8 +65,10 @@ async function main() {
                     };
                     const tags = [];
                     versions.includes(version) && tags.push('installed');
-                    currentVersion === version && tags.push('global');
+                    process.env[constants.versionEnvironmentVariableName] === version && tags.push('env');
                     localVersion === version && tags.push('local');
+                    currentVersion === version && tags.push('global');
+                    !versions.includes(version) && tags.length > 0 && tags.push('not installed');
                     releases[version] = `${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`;
                 } catch { }
             }
@@ -75,8 +77,9 @@ async function main() {
         }
         for (const version of versions) {
             const tags = [];
-            currentVersion === version && tags.push('global');
+            process.env[constants.versionEnvironmentVariableName] === version && tags.push('env');
             localVersion === version && tags.push('local');
+            currentVersion === version && tags.push('global');
             console.log(`${version}${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`);
         }
         process.exit(0);
@@ -110,6 +113,9 @@ Examples:
 
     List installed versions:
         funcvm list
+
+    List published versions:
+        funcvm list --remote
 
     Remove an installed version:
         funcvm remove 4.0.3928\n`);
