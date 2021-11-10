@@ -39,23 +39,48 @@ async function main() {
     const isRemoveCommand = command === 'remove';
 
     if (isListCommand) {
-        const versions = fs.readdirSync(downloadDir);
+        const versions = fs.readdirSync(downloadDir).filter(v => /^\d+\.\d+\.\d+/.test(v) && fs.lstatSync(path.join(downloadDir, v)).isDirectory());
         const versionFile = path.join(downloadDir, 'funcvm-core-tools-version.txt');
         const localVersionFile = path.join(process.cwd(), '.func-version');
         let currentVersion, localVersion;
         if (fs.existsSync(versionFile)) {
-            currentVersion = fs.readFileSync(versionFile, 'utf8');
+            currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
         }
         if (fs.existsSync(localVersionFile)) {
-            localVersion = fs.readFileSync(localVersionFile, 'utf8');
+            localVersion = fs.readFileSync(localVersionFile, 'utf8').trim();
+        }
+        if (args.includes('--remote')) {
+            const feedResponse = await fetch("https://aka.ms/AAeq1v7");
+            const feed = await feedResponse.json();
+            const releases = {};
+            for (const [, releaseInfo] of Object.entries(feed.releases).sort()) {
+                const coreTool = releaseInfo.coreTools.find(tools => tools.OS === getPlatform().os);
+                if (!coreTool) {
+                    continue;
+                };
+                try {
+                    const version = coreTool.downloadLink.match(/\d+\.\d+\.\d+/)[0];
+                    if (releases[version]) {
+                        continue;
+                    };
+                    const tags = [];
+                    process.env[constants.versionEnvironmentVariableName] === version && tags.push('env');
+                    localVersion === version && tags.push('local');
+                    currentVersion === version && tags.push('global');
+                    !versions.includes(version) && tags.length > 0 && tags.push('not installed');
+                    versions.includes(version) && tags.length === 0 && tags.push('installed');
+                    releases[version] = `${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`;
+                } catch { }
+            }
+            console.log(Object.entries(releases).sort((r1, r2) => r1[0] > r2[0] ? 1 : -1).map(r => r.join(' ')).join('\n'));
+            process.exit(0);
         }
         for (const version of versions) {
-            if (/^\d+\.\d+\.\d+/.test(version) && fs.lstatSync(path.join(downloadDir, version)).isDirectory()) {
-                const tags = [];
-                currentVersion === version && tags.push('global');
-                localVersion === version && tags.push('local');
-                console.log(`${version}${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`);
-            }
+            const tags = [];
+            process.env[constants.versionEnvironmentVariableName] === version && tags.push('env');
+            localVersion === version && tags.push('local');
+            currentVersion === version && tags.push('global');
+            console.log(`${version}${tags.length > 0 ? ` (${tags.join(', ')})`: ''}`);
         }
         process.exit(0);
     } else if (isRemoveCommand && !!version) {
@@ -89,6 +114,9 @@ Examples:
     List installed versions:
         funcvm list
 
+    List published versions:
+        funcvm list --remote
+
     Remove an installed version:
         funcvm remove 4.0.3928\n`);
         process.exit(0);
@@ -114,18 +142,20 @@ Examples:
         const releaseCoreTool = release.coreTools.find(
             tool => tool.OS === platform.os && tool.Architecture === archToFind && tool.size == 'full');
 
-        if (releaseCoreTool) {
-            tagInfo.coreToolsUrl = releaseCoreTool.downloadLink;
-            // hack for Windows, there's no x64 in the feed
-            if (platform.os === 'Windows') {
-                tagInfo.coreToolsUrl = tagInfo.coreToolsUrl.replace('x86', 'x64');
-            }
-            const match = releaseCoreTool.downloadLink.match(/\/(\d+\.\d+\.\d+)\//);
-            if (match) {
-                tagInfo.coreToolsVersion = match[1];
-            }
-            tags[tagName] = tagInfo;
+        if (!releaseCoreTool) {
+            continue;
         }
+        tagInfo.coreToolsUrl = releaseCoreTool.downloadLink;
+        // hack for Windows, there's no x64 in the feed
+        if (platform.os === 'Windows') {
+            tagInfo.coreToolsUrl = tagInfo.coreToolsUrl.replace('x86', 'x64');
+        }
+        const match = releaseCoreTool.downloadLink.match(/\/(\d+\.\d+\.\d+)\//);
+        if (match) {
+            tagInfo.coreToolsVersion = match[1];
+        }
+        tags[tagName] = tagInfo;
+
     }
     let tag = tags[`v${version}`];
 
